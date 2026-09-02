@@ -1,0 +1,28 @@
+# Archivos de configuración con credenciales
+config_db.php
+
+# Archivos de sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Archivos de respaldo
+*.bak
+*.backup
+*.sql
+
+#Archivos temporales
+*.tmp
+*.log
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de node
+node_modules/
+
+# Archivos de PHP
+*.phar
