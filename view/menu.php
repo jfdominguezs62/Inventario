@@ -181,7 +181,7 @@ $rolUsuario = $oSession->GetVar('rol') ?: 'operador';
             </a>
           </div>
           <?php endif; ?>
-          <?php if ( in_array($rolUsuario, ['admin', 'supervisor']) ) : ?>
+          <?php if ( $rolUsuario === 'admin' ) : ?>
           <div class="col-md-6 mb-3">
             <a href="cierre_mes.php" class="text-decoration-none">
               <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; transition: transform .2s; cursor: pointer;"

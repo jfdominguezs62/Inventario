@@ -15,7 +15,7 @@ if ( !$oSession->Valid() ) {
 }
 
 $rolUsuario = $oSession->GetVar('rol') ?: 'operador';
-if ( !in_array($rolUsuario, ['admin', 'supervisor']) ) {
+if ( $rolUsuario !== 'admin' ) {
   header("Location: menu.php");
   exit;
 }

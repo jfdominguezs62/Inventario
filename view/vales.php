@@ -74,12 +74,14 @@ $oWeb->Activate();
       </div>
     </div>
 
-    <div class="d-flex align-items-center gap-2 mb-3">
-      <label class="form-check d-flex align-items-center m-0" style="gap:.4rem; white-space:nowrap; flex-shrink:0; cursor:pointer;" for="chk-solo-hoy">
-        <input class="form-check-input m-0" type="checkbox" id="chk-solo-hoy">
-        <span class="small fw-bold text-dark">Mostrar vales solo de</span>
+    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+      <label class="form-check d-flex align-items-center m-0" style="gap:.4rem; white-space:nowrap; flex-shrink:0; cursor:pointer;" for="chk-rango-fecha">
+        <input class="form-check-input m-0" type="checkbox" id="chk-rango-fecha">
+        <span class="small fw-bold text-dark">Mostrar vales de</span>
       </label>
-      <input type="date" id="filtro-solo-fecha" class="form-control form-control-sm flex-shrink-0" style="width:155px;" title="Fecha a mostrar">
+      <input type="date" id="filtro-fecha-desde" class="form-control form-control-sm flex-shrink-0" style="width:155px;" title="Fecha desde">
+      <span class="small fw-bold text-dark">al</span>
+      <input type="date" id="filtro-fecha-hasta" class="form-control form-control-sm flex-shrink-0" style="width:155px;" title="Fecha hasta">
     </div>
 
     <div class="card border-0 shadow-lg" style="border-radius: 16px;">
@@ -259,7 +261,12 @@ $oWeb->Activate();
   $(function() {
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modal-form'), { backdrop: 'static' });
     document.getElementById('f_fecha').value = new Date().toISOString().substr(0, 10);
-    document.getElementById('filtro-solo-fecha').value = new Date().toISOString().substr(0, 10);
+
+    // Restaurar filtros desde localStorage
+    var filtros = JSON.parse(localStorage.getItem('vales_filtros') || '{}');
+    if (filtros.rango_fecha) document.getElementById('chk-rango-fecha').checked = true;
+    if (filtros.fecha_desde) document.getElementById('filtro-fecha-desde').value = filtros.fecha_desde;
+    if (filtros.fecha_hasta) document.getElementById('filtro-fecha-hasta').value = filtros.fecha_hasta;
 
     oTabla = $('#tabla-vales').DataTable({
       processing: true,
@@ -269,8 +276,10 @@ $oWeb->Activate();
         data: function(d) {
           d.action = 'list';
           d.filtro_detalle = $('#filtro-detalle').val();
-          d.solo_hoy = $('#chk-solo-hoy').is(':checked') ? '1' : '0';
-          d.fecha_solo = $('#filtro-solo-fecha').val();
+          if ($('#chk-rango-fecha').is(':checked')) {
+            d.fecha_desde = $('#filtro-fecha-desde').val();
+            d.fecha_hasta = $('#filtro-fecha-hasta').val();
+          }
         },
         dataSrc: function(json) {
           return (json.result && json.data) ? json.data : [];
@@ -359,16 +368,28 @@ $oWeb->Activate();
       }
     });
 
-    $('#chk-solo-hoy').on('change', function() {
+    $('#chk-rango-fecha').on('change', function() {
+      guardarFiltros();
       oTabla.ajax.reload();
     });
 
-    $('#filtro-solo-fecha').on('change', function() {
-      oTabla.ajax.reload();
+    $('#filtro-fecha-desde, #filtro-fecha-hasta').on('change', function() {
+      if ($('#chk-rango-fecha').is(':checked')) {
+        guardarFiltros();
+        oTabla.ajax.reload();
+      }
     });
 
     function aplicarFiltroDetalle() {
       oTabla.ajax.reload();
+    }
+
+    function guardarFiltros() {
+      localStorage.setItem('vales_filtros', JSON.stringify({
+        rango_fecha: $('#chk-rango-fecha').is(':checked'),
+        fecha_desde: $('#filtro-fecha-desde').val(),
+        fecha_hasta: $('#filtro-fecha-hasta').val()
+      }));
     }
 
     // Cargar tipos de movimiento
